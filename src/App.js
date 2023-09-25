@@ -1,23 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+
+import "./App.css";
+import TopMenuBar from "./components/TopMenu";
+import Dashboard from "./components/dashboard";
+import { SideBar } from "./components/sidebar";
+import SubMenuSearch from "./components/submenu";
 
 function App() {
+  const [isVisible, setIsVisible] = useState(false);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen">
+      <TopMenuBar setIsVisible={setIsVisible} isVisible={isVisible} />
+      {isVisible && <SubMenuSearch />}
+      <div className="flex overflow-hidden">
+        {isVisible && <SideBar />}
+        <div className="flex flex-col flex-grow min-h-fit">
+          <Dashboard />
+        </div>
+      </div>
     </div>
   );
 }
