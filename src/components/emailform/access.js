@@ -12,19 +12,23 @@ const msalConfig = {
   },
 };
 
-let pca;
+export let pca;
 
 export const initialize = async () => {
   pca = new PublicClientApplication(msalConfig);
   await pca.initialize();
 };
-initialize();
+
 export const signIn = async () => {
   try {
     const loginRequest = {
       scopes: ["User.Read"],
     };
-
+    const activeAccount = pca.getActiveAccount();
+    if (activeAccount) {
+      pca.cancelPopup();
+      return;
+    }
     const response = await pca.loginPopup(loginRequest);
     return response.account;
   } catch (error) {

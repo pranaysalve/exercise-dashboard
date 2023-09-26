@@ -5,9 +5,10 @@ import TopMenuBar from "./components/TopMenu";
 import Dashboard from "./components/dashboard";
 import { SideBar } from "./components/sidebar";
 import SubMenuSearch from "./components/submenu";
-
+import { initialize } from "./components/emailform/access";
 function App() {
   const [isVisible, setIsVisible] = useState(false);
+  initialize();
   return (
     <div className="min-h-screen">
       <TopMenuBar setIsVisible={setIsVisible} isVisible={isVisible} />

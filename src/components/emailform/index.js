@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 import { Client } from "@microsoft/microsoft-graph-client";
-import { signIn, getAccessToken } from "./access";
+
+import { signIn, getAccessToken, pca } from "./access";
 const EmailForm = ({ onClose, email }) => {
   const [accessToken, setAccessToken] = useState(null);
   const signInAndRetrieveToken = async () => {
@@ -26,8 +27,11 @@ const EmailForm = ({ onClose, email }) => {
   console.log({ subject, message });
 
   const graphClient = Client.init({
-    authProvider: (done) => {
-      done(null, accessToken);
+    authProvider: async (done) => {
+      const token = await pca.acquireTokenSilent({
+        scopes: ["Mail.Send"],
+      });
+      done(null, token.accessToken);
     },
   });
 
