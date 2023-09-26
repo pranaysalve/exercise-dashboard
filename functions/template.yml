@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: AWS SAM Lambda Example
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs14.x
+      CodeUri: ./
+      Environment:
+        Variables:
+          AWS_REGION: !Ref "AWS::Region"
+
+Outputs:
+  MyLambdaFunctionArn:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt MyLambdaFunction.Arn

@@ -19,19 +19,19 @@ export const initialize = async () => {
   await pca.initialize();
 };
 initialize();
-export const signIn = async () => {
-  try {
-    const loginRequest = {
-      scopes: ["User.Read"],
-    };
+// export const signIn = async () => {
+//   try {
+//     const loginRequest = {
+//       scopes: ["User.Read"],
+//     };
 
-    const response = await pca.loginPopup(loginRequest);
-    return response.account;
-  } catch (error) {
-    console.log({ error });
-    throw new Error("Failed to sign in");
-  }
-};
+//     const response = await pca.loginPopup(loginRequest);
+//     return response.account;
+//   } catch (error) {
+//     console.log({ error });
+//     throw new Error("Failed to sign in");
+//   }
+// };
 
 export const getAccessToken = async () => {
   const accounts = pca.getAllAccounts();

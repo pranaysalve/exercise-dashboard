@@ -1,84 +1,47 @@
 import React, { useRef, useState, useEffect } from "react";
-import emailjs from "@emailjs/browser";
-import { Client } from "@microsoft/microsoft-graph-client";
-import { signIn, getAccessToken } from "./access";
+
+import AWS from "aws-sdk";
+
+AWS.config.update({
+  accessKeyId: "AKIAT3RNUGEM6TRZ3657",
+  secretAccessKey: "KxQ867oH7WMmTcToWmXvTkQyyWjB16sQbTsroo04",
+  region: "us-east-1", // Replace with your AWS region (e.g., 'us-east-1')
+});
+
 const EmailForm = ({ onClose, email }) => {
-  const [accessToken, setAccessToken] = useState(null);
-  const signInAndRetrieveToken = async () => {
+  const [recipientEmail, setRecipientEmail] = useState(email);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
+
+  const sendEmail = async (e) => {
+    e.preventDefault();
+    const ses = new AWS.SES();
+
+    const params = {
+      Destination: {
+        ToAddresses: [recipientEmail],
+      },
+      Message: {
+        Body: {
+          Text: {
+            Data: emailBody,
+          },
+        },
+        Subject: {
+          Data: emailSubject,
+        },
+      },
+      Source: "pranaysalve25@gmail.com", // Replace with your sender email address verified in SES
+    };
+
     try {
-      const account = await signIn();
-      const accessToken_ = await getAccessToken(account);
-      console.log("Access token:", accessToken_);
-      setAccessToken(accessToken_);
-      // Use the access token for API calls
+      await ses.sendEmail(params).promise();
+      console.log("Email sent successfully");
     } catch (error) {
-      console.log(error);
+      console.error("Error sending email", error);
     }
   };
 
-  useEffect(() => {
-    signInAndRetrieveToken();
-  }, []);
-  const form = useRef();
-  const [subject, setSubject] = useState(null);
-  const [message, setMessage] = useState(null);
-
-  console.log({ subject, message });
-
-  const graphClient = Client.init({
-    authProvider: (done) => {
-      done(null, accessToken);
-    },
-  });
-
-  const emailBody = {
-    subject: subject,
-    toRecipients: [
-      {
-        emailAddress: {
-          address: "recipient@example.com",
-        },
-      },
-    ],
-    body: {
-      content: message,
-      contentType: "text/html",
-    },
-  };
-
-  const sendMessage = () => {
-    graphClient.api("/me/sendMail").post({ message: emailBody }, (err, res) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log("Email sent successfully", res);
-      }
-    });
-  };
-  const sendEmail = (e) => {
-    // e.preventDefault();
-
-    console.log({ form: form.current });
-    emailjs
-      .sendForm(
-        "service_tq2w21m",
-        "template_4003grd",
-        form.current,
-        "FWwA2vqb8tRWVqQfa"
-      )
-      .then(
-        (result) => {
-          console.log({ result });
-          onClose();
-        },
-        (error) => {
-          console.log({ error });
-        }
-      )
-      .catch((error) => {
-        console.log({ error });
-      });
-  };
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
@@ -87,7 +50,7 @@ const EmailForm = ({ onClose, email }) => {
         <div className="modal-content py-4 text-left px-6">
           <h2 className="text-2xl font-bold mb-4">Send Email</h2>
 
-          <form ref={form} onSubmit={sendMessage}>
+          <form onSubmit={(e) => sendEmail(e)}>
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2"
@@ -98,7 +61,7 @@ const EmailForm = ({ onClose, email }) => {
               <input
                 className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="to"
-                value={email}
+                value={recipientEmail}
                 type="email"
                 name="user_email"
                 placeholder="Enter recipient email"
@@ -117,9 +80,9 @@ const EmailForm = ({ onClose, email }) => {
                 id="subject"
                 name="subject"
                 type="text"
-                value={subject}
+                value={emailSubject}
                 placeholder="Enter email subject"
-                onChange={(e) => setSubject(e.target.value)}
+                onChange={(e) => setEmailSubject(e.target.value)}
               />
             </div>
 
@@ -134,10 +97,10 @@ const EmailForm = ({ onClose, email }) => {
                 className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="message"
                 name="message"
-                value={message}
+                value={emailBody}
                 rows="4"
                 placeholder="Enter email message"
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => setEmailBody(e.target.value)}
               ></textarea>
             </div>
 
