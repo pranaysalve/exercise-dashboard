@@ -1,0 +1,28 @@
+//
+Display name
+:
+OutlookApi
+Application (client) ID
+:
+a9d5305a-46f3-439e-b6f3-595e113c9430
+Object ID
+:
+a283557e-ee40-46f5-b8d6-1baeff3e62a7
+Directory (tenant) ID
+:
+bb98740e-efe7-4604-a99c-8220cc993f2e
+Supported account types
+:
+Personal Microsoft account users
+Client credentials
+:
+Add a certificate or secret
+Redirect URIs
+:
+Add a Redirect URI
+Application ID URI
+:
+Add an Application ID URI
+
+
+//secretId c225ba01-8ca6-403b-a37d-a7262c94b3a5

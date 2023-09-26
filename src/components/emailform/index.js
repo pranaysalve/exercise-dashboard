@@ -1,8 +1,60 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
+import { Client } from "@microsoft/microsoft-graph-client";
+import { signIn, getAccessToken } from "./access";
 const EmailForm = ({ onClose, email }) => {
-  const form = useRef();
+  const [accessToken, setAccessToken] = useState(null);
+  const signInAndRetrieveToken = async () => {
+    try {
+      const account = await signIn();
+      const accessToken_ = await getAccessToken(account);
+      console.log("Access token:", accessToken_);
+      setAccessToken(accessToken_);
+      // Use the access token for API calls
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  useEffect(() => {
+    signInAndRetrieveToken();
+  }, []);
+  const form = useRef();
+  const [subject, setSubject] = useState(null);
+  const [message, setMessage] = useState(null);
+
+  console.log({ subject, message });
+
+  const graphClient = Client.init({
+    authProvider: (done) => {
+      done(null, accessToken);
+    },
+  });
+
+  const emailBody = {
+    subject: subject,
+    toRecipients: [
+      {
+        emailAddress: {
+          address: "recipient@example.com",
+        },
+      },
+    ],
+    body: {
+      content: message,
+      contentType: "text/html",
+    },
+  };
+
+  const sendMessage = () => {
+    graphClient.api("/me/sendMail").post({ message: emailBody }, (err, res) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log("Email sent successfully", res);
+      }
+    });
+  };
   const sendEmail = (e) => {
     // e.preventDefault();
 
@@ -35,7 +87,7 @@ const EmailForm = ({ onClose, email }) => {
         <div className="modal-content py-4 text-left px-6">
           <h2 className="text-2xl font-bold mb-4">Send Email</h2>
 
-          <form ref={form} onSubmit={sendEmail}>
+          <form ref={form} onSubmit={sendMessage}>
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2"
@@ -65,7 +117,9 @@ const EmailForm = ({ onClose, email }) => {
                 id="subject"
                 name="subject"
                 type="text"
+                value={subject}
                 placeholder="Enter email subject"
+                onChange={(e) => setSubject(e.target.value)}
               />
             </div>
 
@@ -80,8 +134,10 @@ const EmailForm = ({ onClose, email }) => {
                 className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="message"
                 name="message"
+                value={message}
                 rows="4"
                 placeholder="Enter email message"
+                onChange={(e) => setMessage(e.target.value)}
               ></textarea>
             </div>
 
